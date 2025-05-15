@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: spring-ai-gigachat-exmaple
+  profiles:
+    active: default,secret
+  ai:
+    retry:
+      max-attempts: 3
+    gigachat:
+      client-id: ${SPRING_AI_GIGACHAT_CLIENT_ID}
+      client-secret: ${SPRING_AI_GIGACHAT_CLIENT_SECRET}
+      scope: gigachat_api_corp
+      unsafe-ssl: true
+      chat:
+        options:
+          model: GIGA_CHAT
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  observations:
+    annotations:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor: DEBUG
+    ai.forever.gigachat: DEBUG
