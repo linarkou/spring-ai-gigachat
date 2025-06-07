@@ -260,6 +260,11 @@
                                     <includes>
                                         <include>**/*IT.java</include>
                                     </includes>
+                                    <environmentVariables>
+                                        <GIGACHAT_API_SCOPE>${env.GIGACHAT_API_SCOPE}</GIGACHAT_API_SCOPE>
+                                        <GIGACHAT_API_CLIENT_ID>${env.GIGACHAT_API_CLIENT_ID}</GIGACHAT_API_CLIENT_ID>
+                                        <GIGACHAT_API_CLIENT_SECRET>${env.GIGACHAT_API_CLIENT_SECRET}</GIGACHAT_API_CLIENT_SECRET>
+                                    </environmentVariables>
                                 </configuration>
                             </execution>
                         </executions>

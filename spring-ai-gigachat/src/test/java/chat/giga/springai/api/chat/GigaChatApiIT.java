@@ -20,12 +20,11 @@ public class GigaChatApiIT {
 
     static {
         GigaChatApiProperties apiProperties = GigaChatApiProperties.builder()
-                .scope(GigaChatApiProperties.GigaChatApiScope.GIGACHAT_API_CORP)
+                .scope(GigaChatApiProperties.GigaChatApiScope.valueOf(System.getenv("GIGACHAT_API_SCOPE")))
                 .clientId(System.getenv("GIGACHAT_API_CLIENT_ID"))
                 .clientSecret(System.getenv("GIGACHAT_API_CLIENT_SECRET"))
                 .unsafeSsl(true)
                 .build();
-        log.info("clientId=" + apiProperties.getClientId().length());
         gigaChatApi = new GigaChatApi(apiProperties);
     }
 
