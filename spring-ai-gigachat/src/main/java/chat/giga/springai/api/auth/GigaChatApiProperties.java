@@ -25,6 +25,8 @@ public class GigaChatApiProperties {
 
     private Resource clientCertificate;
     private Resource clientKey;
+
+    @Builder.Default
     private boolean unsafeSsl = false;
 
     public enum GigaChatApiScope {

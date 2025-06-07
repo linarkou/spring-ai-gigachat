@@ -184,10 +184,10 @@ public class GigaChatApi {
 
     private Consumer<HttpHeaders> applyHeaders(@Nullable HttpHeaders headers) {
         return httpHeaders -> {
-            httpHeaders.add(HttpHeaders.USER_AGENT, USER_AGENT_SPRING_AI_GIGACHAT);
             if (!CollectionUtils.isEmpty(headers)) {
                 httpHeaders.addAll(headers);
             }
+            httpHeaders.set(HttpHeaders.USER_AGENT, USER_AGENT_SPRING_AI_GIGACHAT);
         };
     }
 }

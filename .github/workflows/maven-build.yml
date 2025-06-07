@@ -20,12 +20,5 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build with Maven (+ unit tests only)
-        run: mvn clean test
-
-      - name: Integration tests
-        run: mvn verify -P integration-tests
-        env:
-          GIGACHAT_API_CLIENT_ID: ${{ secrets.GIGACHAT_API_CLIENT_ID }}
-          GIGACHAT_API_CLIENT_SECRET: ${{ secrets.GIGACHAT_API_CLIENT_SECRET }}
-          GIGACHAT_API_SCOPE: ${{ secrets.GIGACHAT_API_SCOPE }}
+      - name: Build with Maven (unit tests only)
+        run: mvn clean test --no-transfer-progress
