@@ -1,5 +1,6 @@
 package chat.giga.springai;
 
+import static chat.giga.springai.advisor.GigaChatCachingAdvisor.X_SESSION_ID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsStringIgnoringCase;
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,6 +33,7 @@ import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Flux;
@@ -76,13 +78,13 @@ public class GigaChatModelTest {
                         .toolCallbacks(List.of(functionCallback))
                         .build());
 
-        when(gigaChatApi.chatCompletionEntity(any()))
+        when(gigaChatApi.chatCompletionEntity(any(), any()))
                 .thenReturn(new ResponseEntity<>(response, HttpStatusCode.valueOf(200)));
 
         gigaChatModel.internalCall(prompt, null);
 
         ArgumentCaptor<CompletionRequest> requestCaptor = ArgumentCaptor.forClass(CompletionRequest.class);
-        verify(gigaChatApi).chatCompletionEntity(requestCaptor.capture());
+        verify(gigaChatApi).chatCompletionEntity(requestCaptor.capture(), any());
 
         assertInstanceOf(FunctionCallParam.class, requestCaptor.getValue().getFunctionCall());
 
@@ -103,13 +105,13 @@ public class GigaChatModelTest {
                         .toolCallbacks(List.of(functionCallback))
                         .build());
 
-        when(gigaChatApi.chatCompletionEntity(any()))
+        when(gigaChatApi.chatCompletionEntity(any(), any()))
                 .thenReturn(new ResponseEntity<>(response, HttpStatusCode.valueOf(200)));
 
         gigaChatModel.internalCall(prompt, null);
 
         ArgumentCaptor<CompletionRequest> requestCaptor = ArgumentCaptor.forClass(CompletionRequest.class);
-        verify(gigaChatApi).chatCompletionEntity(requestCaptor.capture());
+        verify(gigaChatApi).chatCompletionEntity(requestCaptor.capture(), any());
 
         assertEquals("auto", requestCaptor.getValue().getFunctionCall());
     }
@@ -124,13 +126,13 @@ public class GigaChatModelTest {
                         .functionCallMode(callMode)
                         .build());
 
-        when(gigaChatApi.chatCompletionEntity(any()))
+        when(gigaChatApi.chatCompletionEntity(any(), any()))
                 .thenReturn(new ResponseEntity<>(response, HttpStatusCode.valueOf(200)));
 
         gigaChatModel.internalCall(prompt, null);
 
         ArgumentCaptor<CompletionRequest> requestCaptor = ArgumentCaptor.forClass(CompletionRequest.class);
-        verify(gigaChatApi).chatCompletionEntity(requestCaptor.capture());
+        verify(gigaChatApi).chatCompletionEntity(requestCaptor.capture(), any());
 
         assertEquals(callMode.getValue(), requestCaptor.getValue().getFunctionCall());
     }
@@ -148,13 +150,13 @@ public class GigaChatModelTest {
                         .toolCallbacks(List.of(functionCallback))
                         .build());
 
-        when(gigaChatApi.chatCompletionEntity(any()))
+        when(gigaChatApi.chatCompletionEntity(any(), any()))
                 .thenReturn(new ResponseEntity<>(response, HttpStatusCode.valueOf(200)));
 
         gigaChatModel.internalCall(prompt, null);
 
         ArgumentCaptor<CompletionRequest> requestCaptor = ArgumentCaptor.forClass(CompletionRequest.class);
-        verify(gigaChatApi).chatCompletionEntity(requestCaptor.capture());
+        verify(gigaChatApi).chatCompletionEntity(requestCaptor.capture(), any());
 
         assertEquals(callMode.getValue(), requestCaptor.getValue().getFunctionCall());
     }
@@ -165,15 +167,38 @@ public class GigaChatModelTest {
                 List.of(new UserMessage("Hello")),
                 GigaChatOptions.builder().model(GigaChatApi.ChatModel.GIGA_CHAT).build());
 
-        when(gigaChatApi.chatCompletionEntity(any()))
+        when(gigaChatApi.chatCompletionEntity(any(), any()))
                 .thenReturn(new ResponseEntity<>(response, HttpStatusCode.valueOf(200)));
 
         gigaChatModel.internalCall(prompt, null);
 
         ArgumentCaptor<CompletionRequest> requestCaptor = ArgumentCaptor.forClass(CompletionRequest.class);
-        verify(gigaChatApi).chatCompletionEntity(requestCaptor.capture());
+        verify(gigaChatApi).chatCompletionEntity(requestCaptor.capture(), any());
 
         assertNull(requestCaptor.getValue().getFunctionCall());
+    }
+
+    @Test
+    void testGigaChatOptions_withXSessionID() {
+        final var sessionId = "SESSION_ID";
+        var prompt = new Prompt(
+                List.of(new UserMessage("Hello")),
+                GigaChatOptions.builder()
+                        .model(GigaChatApi.ChatModel.GIGA_CHAT)
+                        .sessionId(sessionId)
+                        .build());
+
+        when(gigaChatApi.chatCompletionEntity(any(), any()))
+                .thenReturn(new ResponseEntity<>(response, HttpStatusCode.valueOf(200)));
+
+        gigaChatModel.internalCall(prompt, null);
+
+        ArgumentCaptor<CompletionRequest> requestCaptor = ArgumentCaptor.forClass(CompletionRequest.class);
+        ArgumentCaptor<HttpHeaders> headers = ArgumentCaptor.forClass(HttpHeaders.class);
+        verify(gigaChatApi).chatCompletionEntity(requestCaptor.capture(), headers.capture());
+
+        assertNull(requestCaptor.getValue().getFunctionCall());
+        assertEquals(sessionId, headers.getValue().getFirst(X_SESSION_ID));
     }
 
     @Test
@@ -200,8 +225,10 @@ public class GigaChatModelTest {
                                 .setFunctionCall(new CompletionResponse.FunctionCall("testMethod", "{}")))));
 
         // Для первого запроса в гигачат - имитируем вызов функции
-        Mockito.when(gigaChatApi.chatCompletionStream(ArgumentMatchers.argThat(
-                        rq -> rq != null && rq.getMessages().size() == 1)))
+        Mockito.when(gigaChatApi.chatCompletionStream(
+                        ArgumentMatchers.argThat(
+                                rq -> rq != null && rq.getMessages().size() == 1),
+                        any()))
                 .thenReturn(Flux.just(functionCallResponse));
 
         var finalResponsePart1 = new CompletionResponse()
@@ -223,7 +250,7 @@ public class GigaChatModelTest {
 
         // Для второго запроса в гигачат - имитируем обработку результата вызова функции
         Mockito.when(gigaChatApi.chatCompletionStream(
-                        ArgumentMatchers.argThat(rq -> rq.getMessages().size() == 3)))
+                        ArgumentMatchers.argThat(rq -> rq.getMessages().size() == 3), any()))
                 .thenReturn(Flux.just(finalResponsePart1, finalResponsePart2));
 
         Flux<ChatResponse> chatResponseFlux = gigaChatModel.stream(prompt);
@@ -249,7 +276,7 @@ public class GigaChatModelTest {
                 .verifyComplete();
 
         ArgumentCaptor<CompletionRequest> requestCaptor = ArgumentCaptor.forClass(CompletionRequest.class);
-        verify(gigaChatApi, times(2)).chatCompletionStream(requestCaptor.capture());
+        verify(gigaChatApi, times(2)).chatCompletionStream(requestCaptor.capture(), any());
 
         // Первый запрос в гигачат - с сообщением пользователя и описанием функции testMethod
         var completionRequest1 = requestCaptor.getAllValues().get(0);
