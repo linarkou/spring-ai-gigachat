@@ -20,7 +20,8 @@ public class GigaChatApiIT {
 
     static {
         GigaChatApiProperties apiProperties = GigaChatApiProperties.builder()
-                .scope(GigaChatApiProperties.GigaChatApiScope.valueOf(System.getenv("GIGACHAT_API_SCOPE").toUpperCase()))
+                .scope(GigaChatApiProperties.GigaChatApiScope.valueOf(
+                        System.getenv("GIGACHAT_API_SCOPE").toUpperCase()))
                 .clientId(System.getenv("GIGACHAT_API_CLIENT_ID"))
                 .clientSecret(System.getenv("GIGACHAT_API_CLIENT_SECRET"))
                 .unsafeSsl(true)
