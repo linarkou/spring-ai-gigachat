@@ -25,6 +25,7 @@ public class GigaChatApiIT {
                 .clientSecret(System.getenv("GIGACHAT_API_CLIENT_SECRET"))
                 .unsafeSsl(true)
                 .build();
+        log.info("clientId=" + apiProperties.getClientId().length());
         gigaChatApi = new GigaChatApi(apiProperties);
     }
 
