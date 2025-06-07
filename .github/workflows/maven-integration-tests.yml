@@ -1,4 +1,4 @@
-name: PR Merged build (with integration tests)
+name: Integration tests
 
 on:
   push:
