@@ -16,10 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.messages.SystemMessage;
-import org.springframework.ai.chat.messages.ToolResponseMessage;
-import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.messages.*;
 import org.springframework.ai.chat.metadata.*;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -50,6 +47,7 @@ public class GigaChatModel implements ChatModel {
     public static final String DEFAULT_MODEL_NAME = GigaChatApi.ChatModel.GIGA_CHAT_2.getName();
     public static final ChatModelObservationConvention DEFAULT_OBSERVATION_CONVENTION =
             new DefaultChatModelObservationConvention();
+    public static final String CONVERSATION_HISTORY = "conversationHistory";
     private static final ToolCallingManager DEFAULT_TOOL_CALLING_MANAGER =
             ToolCallingManager.builder().build();
 
@@ -140,13 +138,20 @@ public class GigaChatModel implements ChatModel {
                             ctx -> this.gigaChatApi.chatCompletionEntity(request, buildHeaders(prompt.getOptions())));
 
                     CompletionResponse completionResponse = completionEntity.getBody();
+
+                    if (completionResponse == null) {
+                        log.warn("No chat completion returned for prompt: {}", prompt);
+                        return new ChatResponse(List.of());
+                    }
+
                     completionResponse.setId(completionEntity.getHeaders().getFirst(X_REQUEST_ID));
 
                     Usage currentChatResponseUsage = buildUsage(completionResponse.getUsage());
                     Usage accumulatedUsage =
                             UsageCalculator.getCumulativeUsage(currentChatResponseUsage, previousChatResponse);
 
-                    ChatResponse chatResponse = toChatResponse(completionResponse, accumulatedUsage, false);
+                    ChatResponse chatResponse =
+                            toChatResponse(completionResponse, accumulatedUsage, false, prompt.getInstructions());
                     observationContext.setResponse(chatResponse);
 
                     return chatResponse;
@@ -200,11 +205,16 @@ public class GigaChatModel implements ChatModel {
                     ctx -> this.gigaChatApi.chatCompletionStream(request, buildHeaders(prompt.getOptions())));
 
             Flux<ChatResponse> chatResponseFlux = response.switchMap(completionResponse -> {
+                        if (completionResponse == null) {
+                            log.warn("No chat completion returned for prompt: {}", prompt);
+                            return Flux.just(new ChatResponse(List.of()));
+                        }
                         Usage currentChatResponseUsage = buildUsage(completionResponse.getUsage());
                         Usage accumulatedUsage =
                                 UsageCalculator.getCumulativeUsage(currentChatResponseUsage, previousChatResponse);
 
-                        ChatResponse chatResponse = toChatResponse(completionResponse, accumulatedUsage, true);
+                        ChatResponse chatResponse =
+                                toChatResponse(completionResponse, accumulatedUsage, true, prompt.getInstructions());
 
                         if (this.toolExecutionEligibilityPredicate.isToolExecutionRequired(
                                 prompt.getOptions(), chatResponse)) {
@@ -405,16 +415,13 @@ public class GigaChatModel implements ChatModel {
                 .toList();
     }
 
-    private ChatResponse toChatResponse(CompletionResponse completionResponse, Usage usage, boolean streaming) {
-        if (completionResponse == null) {
-            log.warn("Null completion response");
-            return new ChatResponse(List.of());
-        }
-
+    private ChatResponse toChatResponse(
+            CompletionResponse completionResponse, Usage usage, boolean streaming, List<Message> conversationHistory) {
         List<Generation> generations = completionResponse.getChoices().stream()
                 .map(choice -> buildGeneration(completionResponse.getId(), choice, streaming))
                 .toList();
-        return new ChatResponse(generations, from(completionResponse, usage));
+        return new ChatResponse(
+                generations, from(completionResponse, usage, Map.of(CONVERSATION_HISTORY, conversationHistory)));
     }
 
     private Generation buildGeneration(String id, CompletionResponse.Choice choice, boolean streaming) {
@@ -453,6 +460,11 @@ public class GigaChatModel implements ChatModel {
     }
 
     private ChatResponseMetadata from(CompletionResponse completionResponse, Usage usage) {
+        return from(completionResponse, usage, Map.of());
+    }
+
+    private ChatResponseMetadata from(
+            CompletionResponse completionResponse, Usage usage, Map<String, Object> metadata) {
         Assert.notNull(completionResponse, "GigaChat CompletionResponse must not be null");
         return ChatResponseMetadata.builder()
                 .id(completionResponse.getId())
@@ -460,6 +472,7 @@ public class GigaChatModel implements ChatModel {
                 .usage(usage)
                 .keyValue("created", completionResponse.getCreated())
                 .keyValue("object", completionResponse.getObject())
+                .metadata(metadata)
                 .build();
     }
 
