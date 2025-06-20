@@ -34,7 +34,7 @@
 <dependency>
     <groupId>chat.giga</groupId>
     <artifactId>spring-ai-starter-model-gigachat</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
