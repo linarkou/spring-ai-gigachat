@@ -181,7 +181,7 @@ public class GigaChatModel implements ChatModel {
         // Before moving any further, build the final request Prompt,
         // merging runtime and default options.
         Prompt requestPrompt = buildRequestPrompt(prompt);
-        return this.internalStream(requestPrompt, null).log();
+        return this.internalStream(requestPrompt, null);
     }
 
     public Flux<ChatResponse> internalStream(Prompt prompt, ChatResponse previousChatResponse) {
