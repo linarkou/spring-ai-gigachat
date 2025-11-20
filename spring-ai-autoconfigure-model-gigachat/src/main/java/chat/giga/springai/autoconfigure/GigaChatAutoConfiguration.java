@@ -5,6 +5,9 @@ import chat.giga.springai.GigaChatModel;
 import chat.giga.springai.api.GigaChatApiProperties;
 import chat.giga.springai.api.GigaChatInternalProperties;
 import chat.giga.springai.api.auth.GigaChatAuthProperties;
+import chat.giga.springai.api.auth.bearer.GigaAuthToken;
+import chat.giga.springai.api.auth.bearer.NoopGigaAuthToken;
+import chat.giga.springai.api.auth.bearer.SimpleGigaAuthToken;
 import chat.giga.springai.api.chat.GigaChatApi;
 import io.micrometer.observation.ObservationRegistry;
 import javax.net.ssl.KeyManagerFactory;
@@ -67,6 +70,7 @@ public class GigaChatAutoConfiguration {
     @SneakyThrows
     public GigaChatApi gigaChatApi(
             GigaChatApiProperties gigaChatApiProperties,
+            GigaAuthToken authToken,
             ObjectProvider<RestClient.Builder> restClientBuilderProvider,
             ObjectProvider<WebClient.Builder> webClientBuilderProvider,
             ResponseErrorHandler responseErrorHandler,
@@ -102,6 +106,7 @@ public class GigaChatAutoConfiguration {
         }
         return new GigaChatApi(
                 gigaChatApiProperties,
+                authToken,
                 restClientBuilderProvider.getIfAvailable(RestClient::builder),
                 webClientBuilderProvider.getIfAvailable(WebClient::builder),
                 responseErrorHandler,
@@ -174,5 +179,14 @@ public class GigaChatAutoConfiguration {
         gigaChatApiProperties.setAuth(gigaChatAuthProperties);
         gigaChatApiProperties.setInternal(gigaChatInternalProperties);
         return gigaChatApiProperties;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public GigaAuthToken simpleGigaAuthToken(GigaChatApiProperties gigaChatApiProperties) {
+        if (gigaChatApiProperties.isBearer()) {
+            return new SimpleGigaAuthToken(gigaChatApiProperties.getApiKey());
+        }
+        return new NoopGigaAuthToken();
     }
 }

@@ -72,8 +72,9 @@ public class GigaChatApiProperties {
 
     public String getApiKey() {
         if (auth.isBearerAuth()) {
-            if (StringUtils.hasText(auth.getBearer().getApiKey())) {
-                return auth.getBearer().getApiKey();
+            String apiKey = auth.getBearer().getApiKey();
+            if (StringUtils.hasText(apiKey)) {
+                return apiKey;
             }
             return HttpHeaders.encodeBasicAuth(
                     auth.getBearer().getClientId(), auth.getBearer().getClientSecret(), StandardCharsets.UTF_8);

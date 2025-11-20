@@ -4,8 +4,11 @@ import static chat.giga.springai.api.HttpClientUtils.buildHttpClient;
 import static chat.giga.springai.api.HttpClientUtils.buildSslFactory;
 
 import chat.giga.springai.api.GigaChatApiProperties;
+import chat.giga.springai.api.auth.bearer.GigaAuthToken;
 import chat.giga.springai.api.auth.bearer.GigaChatBearerAuthApi;
 import chat.giga.springai.api.auth.bearer.GigaChatOAuthClient;
+import chat.giga.springai.api.auth.bearer.NoopGigaAuthToken;
+import chat.giga.springai.api.auth.bearer.SimpleGigaAuthToken;
 import chat.giga.springai.api.auth.bearer.interceptors.BearerTokenFilter;
 import chat.giga.springai.api.auth.bearer.interceptors.BearerTokenInterceptor;
 import chat.giga.springai.api.chat.completion.CompletionRequest;
@@ -25,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.content.Media;
 import org.springframework.ai.model.ChatModelDescription;
 import org.springframework.ai.model.ModelOptionsUtils;
-import org.springframework.ai.model.SimpleApiKey;
 import org.springframework.ai.retry.RetryUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -74,14 +76,29 @@ public class GigaChatApi {
             ResponseErrorHandler responseErrorHandler,
             @Nullable KeyManagerFactory kmf,
             @Nullable TrustManagerFactory tmf) {
-        if (properties.isBearer()) {
-            final SimpleApiKey apiKey = new SimpleApiKey(properties.getApiKey());
-            final GigaChatOAuthClient gigaChatOAuthClient =
-                    new GigaChatOAuthClient(properties, restClientBuilder, null, tmf, apiKey);
-            final GigaChatBearerAuthApi gigaChatBearerAuthApi = new GigaChatBearerAuthApi(gigaChatOAuthClient);
-            restClientBuilder.requestInterceptor(new BearerTokenInterceptor(gigaChatBearerAuthApi));
-            webClientBuilder.filter(new BearerTokenFilter(gigaChatBearerAuthApi));
-        }
+        this(
+                properties,
+                properties.isBearer() ? new SimpleGigaAuthToken(properties.getApiKey()) : new NoopGigaAuthToken(),
+                restClientBuilder,
+                webClientBuilder,
+                responseErrorHandler,
+                kmf,
+                tmf);
+    }
+
+    public GigaChatApi(
+            GigaChatApiProperties properties,
+            GigaAuthToken authToken,
+            RestClient.Builder restClientBuilder,
+            WebClient.Builder webClientBuilder,
+            ResponseErrorHandler responseErrorHandler,
+            @Nullable KeyManagerFactory kmf,
+            @Nullable TrustManagerFactory tmf) {
+        final GigaChatOAuthClient gigaChatOAuthClient =
+                new GigaChatOAuthClient(properties, restClientBuilder, null, tmf, authToken);
+        final GigaChatBearerAuthApi gigaChatBearerAuthApi = new GigaChatBearerAuthApi(gigaChatOAuthClient);
+        restClientBuilder.requestInterceptor(new BearerTokenInterceptor(gigaChatBearerAuthApi));
+        webClientBuilder.filter(new BearerTokenFilter(gigaChatBearerAuthApi));
 
         var internalProps = properties.getInternal();
 
