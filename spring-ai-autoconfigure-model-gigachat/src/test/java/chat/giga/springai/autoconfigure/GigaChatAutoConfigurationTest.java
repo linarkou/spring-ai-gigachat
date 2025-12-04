@@ -9,8 +9,11 @@ import chat.giga.springai.api.GigaChatApiProperties;
 import chat.giga.springai.api.GigaChatInternalProperties;
 import chat.giga.springai.api.auth.GigaChatAuthProperties;
 import chat.giga.springai.api.chat.GigaChatApi;
+import chat.giga.springai.image.GigaChatImageModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.ai.document.MetadataMode;
 import org.springframework.ai.model.tool.autoconfigure.ToolCallingAutoConfiguration;
 import org.springframework.ai.retry.autoconfigure.SpringAiRetryAutoConfiguration;
@@ -53,9 +56,10 @@ public class GigaChatAutoConfigurationTest {
             assertThat(context).hasSingleBean(GigaChatInternalProperties.class);
             assertThat(context).hasSingleBean(GigaChatAuthProperties.class);
             assertThat(context).hasSingleBean(GigaChatApiProperties.class);
+            assertThat(context).hasSingleBean(GigaChatImageModel.class);
+            assertThat(context).hasSingleBean(GigaChatImageProperties.class);
 
             GigaChatChatProperties chatProperties = context.getBean(GigaChatChatProperties.class);
-            assertThat(chatProperties.isEnabled()).isTrue();
             assertThat(chatProperties.getOptions().getModel()).isEqualTo("GigaChat-2");
             assertThat(chatProperties.getOptions().getTemperature()).isNull();
             assertThat(chatProperties.getOptions().getTopP()).isNull();
@@ -83,7 +87,6 @@ public class GigaChatAutoConfigurationTest {
                         "spring.ai.gigachat.chat.options.repetition-penalty=2.0")
                 .run(context -> {
                     GigaChatChatProperties chatProperties = context.getBean(GigaChatChatProperties.class);
-                    assertThat(chatProperties.isEnabled()).isTrue();
                     assertThat(chatProperties.getOptions().getModel()).isEqualTo("GigaChat-2-Max");
                     assertThat(chatProperties.getOptions().getTemperature()).isEqualTo(0.7);
                     assertThat(chatProperties.getOptions().getTopP()).isEqualTo(0.5);
@@ -109,6 +112,22 @@ public class GigaChatAutoConfigurationTest {
                 });
     }
 
+    @DisplayName("Параметризованный тест автоконфигурации кастомных параметров Image модели")
+    @ParameterizedTest
+    @CsvSource({"openai, false", "gigachat, true"})
+    void customImagePropertiesAutoConfigurationTest(String propertyValue, boolean beanShouldExist) {
+
+        contextRunner
+                .withPropertyValues("spring.ai.model.image=" + propertyValue)
+                .run(context -> {
+                    if (beanShouldExist) {
+                        assertThat(context).hasSingleBean(GigaChatImageModel.class);
+                    } else {
+                        assertThat(context).doesNotHaveBean(GigaChatImageModel.class);
+                    }
+                });
+    }
+
     @Test
     @DisplayName("Тест проверяет сборку всех бинов автоконфигурации при использовании web application context")
     void webAutoConfigurationTest() {
@@ -124,6 +143,8 @@ public class GigaChatAutoConfigurationTest {
                     assertThat(context).hasSingleBean(GigaChatInternalProperties.class);
                     assertThat(context).hasSingleBean(GigaChatAuthProperties.class);
                     assertThat(context).hasSingleBean(GigaChatApiProperties.class);
+                    assertThat(context).hasSingleBean(GigaChatImageModel.class);
+                    assertThat(context).hasSingleBean(GigaChatImageProperties.class);
                 });
     }
 
@@ -143,6 +164,8 @@ public class GigaChatAutoConfigurationTest {
                     assertThat(context).hasSingleBean(GigaChatInternalProperties.class);
                     assertThat(context).hasSingleBean(GigaChatAuthProperties.class);
                     assertThat(context).hasSingleBean(GigaChatApiProperties.class);
+                    assertThat(context).hasSingleBean(GigaChatImageModel.class);
+                    assertThat(context).hasSingleBean(GigaChatImageProperties.class);
                 });
     }
 
@@ -161,6 +184,8 @@ public class GigaChatAutoConfigurationTest {
                     assertThat(context).hasSingleBean(GigaChatInternalProperties.class);
                     assertThat(context).hasSingleBean(GigaChatAuthProperties.class);
                     assertThat(context).hasSingleBean(GigaChatApiProperties.class);
+                    assertThat(context).hasSingleBean(GigaChatImageModel.class);
+                    assertThat(context).hasSingleBean(GigaChatImageProperties.class);
                 });
     }
 
@@ -180,6 +205,8 @@ public class GigaChatAutoConfigurationTest {
                     assertThat(context).hasSingleBean(GigaChatInternalProperties.class);
                     assertThat(context).hasSingleBean(GigaChatAuthProperties.class);
                     assertThat(context).hasSingleBean(GigaChatApiProperties.class);
+                    assertThat(context).hasSingleBean(GigaChatImageModel.class);
+                    assertThat(context).hasSingleBean(GigaChatImageProperties.class);
                 });
     }
 
@@ -198,6 +225,8 @@ public class GigaChatAutoConfigurationTest {
                     assertThat(context).hasSingleBean(GigaChatInternalProperties.class);
                     assertThat(context).hasSingleBean(GigaChatAuthProperties.class);
                     assertThat(context).hasSingleBean(GigaChatApiProperties.class);
+                    assertThat(context).hasSingleBean(GigaChatImageModel.class);
+                    assertThat(context).hasSingleBean(GigaChatImageProperties.class);
                 });
     }
 
@@ -216,6 +245,8 @@ public class GigaChatAutoConfigurationTest {
                     assertThat(context).hasSingleBean(GigaChatInternalProperties.class);
                     assertThat(context).hasSingleBean(GigaChatAuthProperties.class);
                     assertThat(context).hasSingleBean(GigaChatApiProperties.class);
+                    assertThat(context).hasSingleBean(GigaChatImageModel.class);
+                    assertThat(context).hasSingleBean(GigaChatImageProperties.class);
                 });
     }
 }

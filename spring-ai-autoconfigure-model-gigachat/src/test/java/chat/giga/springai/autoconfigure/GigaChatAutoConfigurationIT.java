@@ -6,6 +6,8 @@ import static org.hamcrest.Matchers.*;
 
 import chat.giga.springai.GigaChatEmbeddingModel;
 import chat.giga.springai.GigaChatModel;
+import chat.giga.springai.image.GigaChatImageModel;
+import chat.giga.springai.image.GigaChatImageOptions;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.embedding.EmbeddingRequest;
 import org.springframework.ai.embedding.EmbeddingResponse;
+import org.springframework.ai.image.ImageMessage;
+import org.springframework.ai.image.ImagePrompt;
+import org.springframework.ai.image.ImageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -38,6 +43,9 @@ public class GigaChatAutoConfigurationIT {
     @Autowired
     GigaChatEmbeddingProperties gigaChatEmbeddingProperties;
 
+    @Autowired
+    GigaChatImageModel gigaChatImageModel;
+
     @Test
     @DisplayName("Тест взаимодействия с чатом модели")
     void chatInteractionTest() {
@@ -57,5 +65,15 @@ public class GigaChatAutoConfigurationIT {
                 new EmbeddingRequest(List.of("Привет, как дела?"), gigaChatEmbeddingProperties.getOptions());
         final EmbeddingResponse embeddingResponse = gigaChatEmbeddingModel.call(embeddingRequest);
         assertThat("Запрос в embeddingModel", embeddingResponse, is(not(nullValue())));
+    }
+
+    @Test
+    @DisplayName("Тест взаимодействия с chat моделью для генерации изображений")
+    void imageInteractionTest() {
+        ImagePrompt prompt = new ImagePrompt(
+                List.of(new ImageMessage("Нарисуй розового кота в стиле акварели", 1.0f)),
+                GigaChatImageOptions.builder().build());
+        ImageResponse response = gigaChatImageModel.call(prompt);
+        assertThat("Запрос в imageModel", response, is(not(nullValue())));
     }
 }
