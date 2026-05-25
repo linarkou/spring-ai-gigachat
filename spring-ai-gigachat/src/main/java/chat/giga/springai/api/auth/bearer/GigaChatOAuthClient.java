@@ -8,7 +8,6 @@ import chat.giga.springai.api.HttpClientUtils;
 import chat.giga.springai.api.auth.GigaChatApiScope;
 import chat.giga.springai.api.auth.GigaChatAuthProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -38,8 +37,7 @@ public class GigaChatOAuthClient {
 
     private static final int MAX_LOGGED_BODY_LENGTH = 500;
 
-    private static final ObjectMapper DEFAULT_OBJECT_MAPPER =
-            new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    private static final ObjectMapper DEFAULT_OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * HTTP Client for OAuth interaction with proper ssl and observability.
@@ -181,19 +179,19 @@ public class GigaChatOAuthClient {
                     }
 
                     // Try to parse JSON even for error HTTP response codes (API may return valid token with 4xx/5xx)
-                    GigaChatAccessTokenResponse parsed =
-                            objectMapper.readValue(bodyBytes, GigaChatAccessTokenResponse.class);
-                    if (parsed == null || parsed.accessToken() == null || parsed.expiresAt() == null) {
+                    try {
+                        return objectMapper.readValue(bodyBytes, GigaChatAccessTokenResponse.class);
+                    } catch (Exception e) {
                         log.warn(
                                 "Token request failed: status={}, contentType={}, body={}",
                                 response.getStatusCode(),
                                 contentType,
-                                truncatedBody);
+                                truncatedBody,
+                                e);
                         throw new RestClientException(
                                 "Auth endpoint returned JSON error without access_token or expires_at (status="
                                         + response.getStatusCode() + "): " + truncatedBody);
                     }
-                    return parsed;
                 });
     }
 

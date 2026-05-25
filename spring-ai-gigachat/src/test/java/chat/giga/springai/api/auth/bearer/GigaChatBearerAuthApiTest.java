@@ -196,7 +196,7 @@ public abstract class GigaChatBearerAuthApiTest {
         createStubForTokenRequest(tokenResponse);
 
         // Act & Assert
-        assertThrows(RestClientException.class, () -> authApi.getValue());
+        assertThrows(IllegalArgumentException.class, () -> authApi.getValue());
     }
 
     @SneakyThrows
