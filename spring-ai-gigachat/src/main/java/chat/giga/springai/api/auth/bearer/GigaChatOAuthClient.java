@@ -189,7 +189,7 @@ public class GigaChatOAuthClient {
                                 truncatedBody,
                                 e);
                         throw new RestClientException(
-                                "Auth endpoint returned JSON error without access_token or expires_at (status="
+                                "Auth endpoint returned unparseable JSON (status="
                                         + response.getStatusCode() + "): " + truncatedBody, e);
                     }
                 });
