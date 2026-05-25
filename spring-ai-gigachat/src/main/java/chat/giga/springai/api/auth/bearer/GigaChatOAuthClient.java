@@ -177,7 +177,7 @@ public class GigaChatOAuthClient {
                                 truncatedBody);
                         throw new RestClientException("Auth endpoint returned non-JSON response (status="
                                 + response.getStatusCode() + ", contentType=" + contentType
-                                + "): " + body);
+                                + "): " + truncatedBody);
                     }
 
                     // Try to parse JSON even for error HTTP response codes (API may return valid token with 4xx/5xx)
