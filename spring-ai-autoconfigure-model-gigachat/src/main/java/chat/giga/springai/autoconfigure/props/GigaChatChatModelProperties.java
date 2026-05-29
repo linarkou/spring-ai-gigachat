@@ -1,12 +1,12 @@
-package chat.giga.springai.autoconfigure;
+package chat.giga.springai.autoconfigure.props;
 
 import chat.giga.springai.GigaChatModel;
 import chat.giga.springai.GigaChatOptions;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
-@ConfigurationProperties(GigaChatChatProperties.CONFIG_PREFIX)
-public class GigaChatChatProperties {
+@ConfigurationProperties(GigaChatChatModelProperties.CONFIG_PREFIX)
+public class GigaChatChatModelProperties {
 
     public static final String CONFIG_PREFIX = "spring.ai.gigachat.chat";
 

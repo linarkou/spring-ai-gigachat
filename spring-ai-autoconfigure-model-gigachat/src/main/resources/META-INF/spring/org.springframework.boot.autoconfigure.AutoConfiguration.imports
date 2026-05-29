@@ -1,1 +1,4 @@
-chat.giga.springai.autoconfigure.GigaChatAutoConfiguration
+chat.giga.springai.autoconfigure.config.GigaChatApiAutoConfiguration
+chat.giga.springai.autoconfigure.config.GigaChatChatModelAutoConfiguration
+chat.giga.springai.autoconfigure.config.GigaChatEmbeddingModelAutoConfiguration
+chat.giga.springai.autoconfigure.config.GigaChatImageModelAutoConfiguration

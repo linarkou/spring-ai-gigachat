@@ -1,4 +1,4 @@
-package chat.giga.springai.autoconfigure;
+package chat.giga.springai.autoconfigure.props;
 
 import chat.giga.springai.image.GigaChatImageOptions;
 import org.springframework.boot.context.properties.ConfigurationProperties;
