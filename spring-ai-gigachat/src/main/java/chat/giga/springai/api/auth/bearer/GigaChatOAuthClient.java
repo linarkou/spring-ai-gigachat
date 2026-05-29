@@ -189,8 +189,9 @@ public class GigaChatOAuthClient {
                                 truncatedBody,
                                 e);
                         throw new RestClientException(
-                                "Auth endpoint returned unparseable JSON (status="
-                                        + response.getStatusCode() + "): " + truncatedBody, e);
+                                "Auth endpoint returned unparseable JSON (status=" + response.getStatusCode() + "): "
+                                        + truncatedBody,
+                                e);
                     }
                 });
     }
