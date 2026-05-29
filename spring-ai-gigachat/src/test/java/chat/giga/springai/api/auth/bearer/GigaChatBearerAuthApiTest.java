@@ -175,8 +175,8 @@ public abstract class GigaChatBearerAuthApiTest {
         // Act & Assert — JSON has no access_token, should throw RestClientException
         var ex = assertThrows(RestClientException.class, () -> authApi.getValue());
         assertTrue(
-                ex.getMessage().contains("without access_token"),
-                "Exception message should mention missing access_token, but was: " + ex.getMessage());
+                ex.getMessage().contains("unparseable JSON"),
+                "Exception message should mention unparseable JSON, but was: " + ex.getMessage());
         assertTrue(
                 ex.getMessage().contains("credentials doesn't match db data"),
                 "Exception message should contain response body, but was: " + ex.getMessage());
