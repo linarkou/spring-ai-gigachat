@@ -1,5 +1,7 @@
 package chat.giga.springai.autoconfigure.config;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import chat.giga.springai.api.GigaChatApiProperties;
 import chat.giga.springai.api.GigaChatInternalProperties;
 import chat.giga.springai.api.auth.GigaChatAuthProperties;
@@ -20,16 +22,13 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class GigaChatApiAutoConfigurationTest {
 
     private final AutoConfigurations baseAutoConfigurations = AutoConfigurations.of(
             GigaChatApiAutoConfiguration.class,
             RestClientAutoConfiguration.class,
             WebClientAutoConfiguration.class,
-            ConfigurationPropertiesAutoConfiguration.class
-    );
+            ConfigurationPropertiesAutoConfiguration.class);
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withPropertyValues("spring.ai.gigachat.auth.bearer.api-key=test")
@@ -59,9 +58,7 @@ public class GigaChatApiAutoConfigurationTest {
     void certsAuthCreatesNoopToken() {
         new ApplicationContextRunner()
                 .withPropertyValues(
-                        "spring.ai.gigachat.auth.certs.enabled=true",
-                        "spring.ai.gigachat.auth.bearer.enabled=false"
-                )
+                        "spring.ai.gigachat.auth.certs.enabled=true", "spring.ai.gigachat.auth.bearer.enabled=false")
                 .withConfiguration(baseAutoConfigurations)
                 .run(context -> {
                     assertThat(context).hasSingleBean(GigaAuthToken.class);
@@ -108,8 +105,7 @@ public class GigaChatApiAutoConfigurationTest {
                 RestClientAutoConfiguration.class,
                 WebClientAutoConfiguration.class,
                 SslAutoConfiguration.class,
-                ClientHttpConnectorAutoConfiguration.class
-        );
+                ClientHttpConnectorAutoConfiguration.class);
 
         new WebApplicationContextRunner()
                 .withPropertyValues("spring.ai.gigachat.auth.bearer.api-key=test")

@@ -7,6 +7,8 @@ import chat.giga.springai.api.auth.bearer.GigaAuthToken;
 import chat.giga.springai.api.auth.bearer.NoopGigaAuthToken;
 import chat.giga.springai.api.auth.bearer.SimpleGigaAuthToken;
 import chat.giga.springai.api.chat.GigaChatApi;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -28,15 +30,7 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManagerFactory;
-
-@AutoConfiguration(
-        after = {
-                RestClientAutoConfiguration.class,
-                WebClientAutoConfiguration.class
-        }
-)
+@AutoConfiguration(after = {RestClientAutoConfiguration.class, WebClientAutoConfiguration.class})
 @ConditionalOnClass(GigaChatApi.class)
 @Slf4j
 @RequiredArgsConstructor

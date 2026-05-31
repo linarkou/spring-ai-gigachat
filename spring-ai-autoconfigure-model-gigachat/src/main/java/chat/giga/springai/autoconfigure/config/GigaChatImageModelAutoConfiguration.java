@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.ai.image.ImageModel;
 import org.springframework.ai.image.observation.ImageModelObservationConvention;
 import org.springframework.ai.model.SpringAIModelProperties;
+import org.springframework.ai.model.image.observation.autoconfigure.ImageObservationAutoConfiguration;
 import org.springframework.ai.retry.RetryUtils;
 import org.springframework.ai.retry.autoconfigure.SpringAiRetryAutoConfiguration;
 import org.springframework.beans.factory.ObjectProvider;
@@ -22,17 +23,14 @@ import org.springframework.retry.support.RetryTemplate;
 
 @AutoConfiguration(
         after = {
-                GigaChatApiAutoConfiguration.class,
-                SpringAiRetryAutoConfiguration.class
-        }
-)
+            GigaChatApiAutoConfiguration.class,
+            SpringAiRetryAutoConfiguration.class,
+            ImageObservationAutoConfiguration.class
+        })
 @EnableConfigurationProperties(GigaChatImageProperties.class)
 @ConditionalOnClass(GigaChatImageModel.class)
 @ConditionalOnBean(GigaChatApi.class)
-@ConditionalOnProperty(
-        name = SpringAIModelProperties.IMAGE_MODEL,
-        havingValue = "gigachat",
-        matchIfMissing = true)
+@ConditionalOnProperty(name = SpringAIModelProperties.IMAGE_MODEL, havingValue = "gigachat", matchIfMissing = true)
 @RequiredArgsConstructor
 public class GigaChatImageModelAutoConfiguration {
 

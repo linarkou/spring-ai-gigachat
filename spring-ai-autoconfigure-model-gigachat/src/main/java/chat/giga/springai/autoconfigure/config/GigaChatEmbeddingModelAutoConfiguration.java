@@ -7,6 +7,7 @@ import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.embedding.observation.EmbeddingModelObservationConvention;
 import org.springframework.ai.model.SpringAIModelProperties;
+import org.springframework.ai.model.embedding.observation.autoconfigure.EmbeddingObservationAutoConfiguration;
 import org.springframework.ai.retry.RetryUtils;
 import org.springframework.ai.retry.autoconfigure.SpringAiRetryAutoConfiguration;
 import org.springframework.beans.factory.ObjectProvider;
@@ -21,17 +22,14 @@ import org.springframework.retry.support.RetryTemplate;
 
 @AutoConfiguration(
         after = {
-                GigaChatApiAutoConfiguration.class,
-                SpringAiRetryAutoConfiguration.class
-        }
-)
+            GigaChatApiAutoConfiguration.class,
+            SpringAiRetryAutoConfiguration.class,
+            EmbeddingObservationAutoConfiguration.class
+        })
 @EnableConfigurationProperties(GigaChatEmbeddingProperties.class)
 @ConditionalOnClass(GigaChatEmbeddingModel.class)
 @ConditionalOnBean(GigaChatApi.class)
-@ConditionalOnProperty(
-        name = SpringAIModelProperties.EMBEDDING_MODEL,
-        havingValue = "gigachat",
-        matchIfMissing = true)
+@ConditionalOnProperty(name = SpringAIModelProperties.EMBEDDING_MODEL, havingValue = "gigachat", matchIfMissing = true)
 @RequiredArgsConstructor
 public class GigaChatEmbeddingModelAutoConfiguration {
 

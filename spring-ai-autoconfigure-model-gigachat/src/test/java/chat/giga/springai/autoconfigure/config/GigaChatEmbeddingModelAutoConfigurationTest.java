@@ -1,5 +1,7 @@
 package chat.giga.springai.autoconfigure.config;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import chat.giga.springai.GigaChatEmbeddingModel;
 import chat.giga.springai.autoconfigure.props.GigaChatEmbeddingProperties;
 import org.junit.jupiter.api.DisplayName;
@@ -13,8 +15,6 @@ import org.springframework.boot.autoconfigure.web.client.RestClientAutoConfigura
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class GigaChatEmbeddingModelAutoConfigurationTest {
 
     private final ApplicationContextRunner baseRunner = new ApplicationContextRunner()
@@ -24,8 +24,7 @@ public class GigaChatEmbeddingModelAutoConfigurationTest {
                     GigaChatEmbeddingModelAutoConfiguration.class,
                     RestClientAutoConfiguration.class,
                     WebClientAutoConfiguration.class,
-                    SpringAiRetryAutoConfiguration.class
-            ));
+                    SpringAiRetryAutoConfiguration.class));
 
     @Test
     @DisplayName("Проверяет создание GigaChatEmbeddingModel и GigaChatEmbeddingProperties")
@@ -42,8 +41,7 @@ public class GigaChatEmbeddingModelAutoConfigurationTest {
         baseRunner
                 .withPropertyValues(
                         "spring.ai.gigachat.embedding.options.model=Embeddings-2",
-                        "spring.ai.gigachat.embedding.options.dimensions=1024"
-                )
+                        "spring.ai.gigachat.embedding.options.dimensions=1024")
                 .run(context -> {
                     GigaChatEmbeddingProperties embeddingProperties =
                             context.getBean(GigaChatEmbeddingProperties.class);
@@ -54,8 +52,8 @@ public class GigaChatEmbeddingModelAutoConfigurationTest {
 
     @ParameterizedTest
     @CsvSource({
-            "gigachat, true",
-            "openai, false",
+        "gigachat, true",
+        "openai, false",
     })
     @DisplayName("Условное создание GigaChatEmbeddingModel в зависимости от spring.ai.model.embedding")
     void embeddingModelConditionalTest(String propertyValue, boolean beanShouldExist) {
