@@ -4,7 +4,6 @@ import chat.giga.springai.api.chat.GigaChatApi;
 import chat.giga.springai.autoconfigure.props.GigaChatImageProperties;
 import chat.giga.springai.image.GigaChatImageModel;
 import io.micrometer.observation.ObservationRegistry;
-import lombok.RequiredArgsConstructor;
 import org.springframework.ai.image.ImageModel;
 import org.springframework.ai.image.observation.ImageModelObservationConvention;
 import org.springframework.ai.model.SpringAIModelProperties;
@@ -31,7 +30,6 @@ import org.springframework.retry.support.RetryTemplate;
 @ConditionalOnClass(GigaChatImageModel.class)
 @ConditionalOnBean(GigaChatApi.class)
 @ConditionalOnProperty(name = SpringAIModelProperties.IMAGE_MODEL, havingValue = "gigachat", matchIfMissing = true)
-@RequiredArgsConstructor
 public class GigaChatImageModelAutoConfiguration {
 
     @Bean

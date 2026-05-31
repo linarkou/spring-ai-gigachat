@@ -5,7 +5,6 @@ import chat.giga.springai.api.GigaChatInternalProperties;
 import chat.giga.springai.api.chat.GigaChatApi;
 import chat.giga.springai.autoconfigure.props.GigaChatChatProperties;
 import io.micrometer.observation.ObservationRegistry;
-import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.observation.ChatModelObservationConvention;
 import org.springframework.ai.model.SpringAIModelProperties;
 import org.springframework.ai.model.chat.observation.autoconfigure.ChatObservationAutoConfiguration;
@@ -36,7 +35,6 @@ import org.springframework.retry.support.RetryTemplate;
 @ConditionalOnClass(GigaChatModel.class)
 @ConditionalOnBean(GigaChatApi.class)
 @ConditionalOnProperty(name = SpringAIModelProperties.CHAT_MODEL, havingValue = "gigachat", matchIfMissing = true)
-@RequiredArgsConstructor
 public class GigaChatChatModelAutoConfiguration {
 
     @Bean

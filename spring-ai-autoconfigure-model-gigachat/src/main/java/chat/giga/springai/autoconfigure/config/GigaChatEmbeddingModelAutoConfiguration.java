@@ -4,7 +4,6 @@ import chat.giga.springai.GigaChatEmbeddingModel;
 import chat.giga.springai.api.chat.GigaChatApi;
 import chat.giga.springai.autoconfigure.props.GigaChatEmbeddingProperties;
 import io.micrometer.observation.ObservationRegistry;
-import lombok.RequiredArgsConstructor;
 import org.springframework.ai.embedding.observation.EmbeddingModelObservationConvention;
 import org.springframework.ai.model.SpringAIModelProperties;
 import org.springframework.ai.model.embedding.observation.autoconfigure.EmbeddingObservationAutoConfiguration;
@@ -30,7 +29,6 @@ import org.springframework.retry.support.RetryTemplate;
 @ConditionalOnClass(GigaChatEmbeddingModel.class)
 @ConditionalOnBean(GigaChatApi.class)
 @ConditionalOnProperty(name = SpringAIModelProperties.EMBEDDING_MODEL, havingValue = "gigachat", matchIfMissing = true)
-@RequiredArgsConstructor
 public class GigaChatEmbeddingModelAutoConfiguration {
 
     @Bean
