@@ -8,7 +8,6 @@ import chat.giga.springai.api.HttpClientUtils;
 import chat.giga.springai.api.auth.GigaChatApiScope;
 import chat.giga.springai.api.auth.GigaChatAuthProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +21,8 @@ import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * HTTP client for GigaChat OAuth 2.0 token endpoint.
@@ -178,10 +179,18 @@ public class GigaChatOAuthClient {
                                 + "): " + truncatedBody);
                     }
 
+                    if (response.getStatusCode().isError()) {
+                        log.warn(
+                                "Token request returned error: status={}, contentType={}",
+                                response.getStatusCode(),
+                                contentType);
+                    }
+
                     // Try to parse JSON even for error HTTP response codes (API may return valid token with 4xx/5xx)
+                    GigaChatAccessTokenResponse tokenResponse;
                     try {
-                        return objectMapper.readValue(bodyBytes, GigaChatAccessTokenResponse.class);
-                    } catch (Exception e) {
+                        tokenResponse = objectMapper.readValue(bodyBytes, GigaChatAccessTokenResponse.class);
+                    } catch (JacksonException e) {
                         log.warn(
                                 "Token request failed: status={}, contentType={}, body={}",
                                 response.getStatusCode(),
@@ -193,6 +202,15 @@ public class GigaChatOAuthClient {
                                         + truncatedBody,
                                 e);
                     }
+
+                    if (tokenResponse == null || tokenResponse.accessToken() == null) {
+                        log.warn(
+                                "Token request failed: status={}, contentType={}, body={}",
+                                response.getStatusCode(),
+                                contentType,
+                                truncatedBody);
+                    }
+                    return tokenResponse;
                 });
     }
 

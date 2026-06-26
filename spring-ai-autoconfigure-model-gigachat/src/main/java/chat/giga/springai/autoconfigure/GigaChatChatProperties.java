@@ -1,4 +1,4 @@
-package chat.giga.springai.autoconfigure.props;
+package chat.giga.springai.autoconfigure;
 
 import chat.giga.springai.GigaChatModel;
 import chat.giga.springai.GigaChatOptions;

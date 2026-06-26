@@ -40,15 +40,16 @@ class GigaChatCachingAdvisorTest {
     @Mock
     private StreamAdvisorChain streamChain;
 
-    @Mock
-    private SystemMessage mockMessage;
+    // Real instance is required: ChatClientRequest.mutate() deep-copies the prompt via
+    // Prompt.copy(), which calls copy() on each message. A Mockito mock would return null there.
+    private final SystemMessage systemMessage = new SystemMessage("test message");
 
     @Test
     @DisplayName("Вызов адвизора с X_SESSION_ID")
     void testAdviseCall_withContext() {
         ChatClientRequest request = ChatClientRequest.builder()
                 .prompt(Prompt.builder()
-                        .messages(mockMessage)
+                        .messages(systemMessage)
                         .chatOptions(GigaChatOptions.builder().build())
                         .build())
                 .context(GigaChatCachingAdvisor.X_SESSION_ID, X_SESSION_ID_VALUE)
@@ -70,7 +71,7 @@ class GigaChatCachingAdvisorTest {
     void testAdviseCall_withoutContext() {
         ChatClientRequest request = ChatClientRequest.builder()
                 .prompt(Prompt.builder()
-                        .messages(mockMessage)
+                        .messages(systemMessage)
                         .chatOptions(GigaChatOptions.builder().build())
                         .build())
                 .build();
@@ -89,7 +90,7 @@ class GigaChatCachingAdvisorTest {
     void testAdviseStream_withContext() {
         ChatClientRequest request = ChatClientRequest.builder()
                 .prompt(Prompt.builder()
-                        .messages(mockMessage)
+                        .messages(systemMessage)
                         .chatOptions(GigaChatOptions.builder().build())
                         .build())
                 .context(GigaChatCachingAdvisor.X_SESSION_ID, X_SESSION_ID_VALUE)
@@ -116,7 +117,7 @@ class GigaChatCachingAdvisorTest {
     void testAdviseStream_withoutContext() {
         ChatClientRequest request = ChatClientRequest.builder()
                 .prompt(Prompt.builder()
-                        .messages(mockMessage)
+                        .messages(systemMessage)
                         .chatOptions(GigaChatOptions.builder().build())
                         .build())
                 .build();
@@ -142,7 +143,7 @@ class GigaChatCachingAdvisorTest {
         Map<String, String> immutableHeaders = Map.of("X-Custom", "custom-value");
         ChatClientRequest request = ChatClientRequest.builder()
                 .prompt(Prompt.builder()
-                        .messages(mockMessage)
+                        .messages(systemMessage)
                         .chatOptions(GigaChatOptions.builder()
                                 .httpHeaders(immutableHeaders)
                                 .build())
@@ -170,7 +171,7 @@ class GigaChatCachingAdvisorTest {
     void testAdviseCall_withEmptyImmutableHttpHeaders() {
         ChatClientRequest request = ChatClientRequest.builder()
                 .prompt(Prompt.builder()
-                        .messages(mockMessage)
+                        .messages(systemMessage)
                         .chatOptions(
                                 GigaChatOptions.builder().httpHeaders(Map.of()).build())
                         .build())
@@ -195,7 +196,7 @@ class GigaChatCachingAdvisorTest {
         Map<String, String> immutableHeaders = Collections.unmodifiableMap(source);
         ChatClientRequest request = ChatClientRequest.builder()
                 .prompt(Prompt.builder()
-                        .messages(mockMessage)
+                        .messages(systemMessage)
                         .chatOptions(GigaChatOptions.builder()
                                 .httpHeaders(immutableHeaders)
                                 .build())
@@ -220,12 +221,12 @@ class GigaChatCachingAdvisorTest {
     @Test
     @DisplayName("Вызов адвизора с X_SESSION_ID и httpHeaders=null не падает")
     void testAdviseCall_withNullHttpHeaders() {
-        GigaChatOptions options = GigaChatOptions.builder().build();
-        options.setHttpHeaders(null);
+        var options = GigaChatOptions.builder();
+        options.httpHeaders(null);
         ChatClientRequest request = ChatClientRequest.builder()
                 .prompt(Prompt.builder()
-                        .messages(mockMessage)
-                        .chatOptions(options)
+                        .messages(systemMessage)
+                        .chatOptions(options.build())
                         .build())
                 .context(GigaChatCachingAdvisor.X_SESSION_ID, X_SESSION_ID_VALUE)
                 .build();
@@ -246,7 +247,7 @@ class GigaChatCachingAdvisorTest {
         Map<String, String> immutableHeaders = Map.of("X-Custom", "custom-value");
         ChatClientRequest request = ChatClientRequest.builder()
                 .prompt(Prompt.builder()
-                        .messages(mockMessage)
+                        .messages(systemMessage)
                         .chatOptions(GigaChatOptions.builder()
                                 .httpHeaders(immutableHeaders)
                                 .build())

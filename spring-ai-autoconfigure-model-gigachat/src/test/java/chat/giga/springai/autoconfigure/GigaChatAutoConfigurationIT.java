@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.not;
 
 import chat.giga.springai.GigaChatEmbeddingModel;
 import chat.giga.springai.GigaChatModel;
-import chat.giga.springai.autoconfigure.props.GigaChatEmbeddingProperties;
 import chat.giga.springai.image.GigaChatImageModel;
 import chat.giga.springai.image.GigaChatImageOptions;
 import java.util.List;

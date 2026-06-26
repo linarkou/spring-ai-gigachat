@@ -1,9 +1,9 @@
-package chat.giga.springai.autoconfigure.config;
+package chat.giga.springai.autoconfigure;
 
 import chat.giga.springai.GigaChatModel;
+import chat.giga.springai.GigaChatOptions;
 import chat.giga.springai.api.GigaChatInternalProperties;
 import chat.giga.springai.api.chat.GigaChatApi;
-import chat.giga.springai.autoconfigure.props.GigaChatChatProperties;
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.ai.chat.observation.ChatModelObservationConvention;
 import org.springframework.ai.model.SpringAIModelProperties;
@@ -22,7 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.core.retry.RetryTemplate;
 
 @AutoConfiguration(
         after = {
@@ -48,9 +48,23 @@ public class GigaChatChatModelAutoConfiguration {
             final ObjectProvider<ChatModelObservationConvention> observationConvention,
             final ObjectProvider<ToolExecutionEligibilityPredicate> toolExecutionEligibilityPredicate,
             final GigaChatInternalProperties internalProperties) {
+        GigaChatOptions options = GigaChatOptions.builder()
+                .model(chatProperties.getModel())
+                .temperature(chatProperties.getTemperature())
+                .topP(chatProperties.getTopP())
+                .maxTokens(chatProperties.getMaxTokens())
+                .repetitionPenalty(chatProperties.getRepetitionPenalty())
+                .updateInterval(chatProperties.getUpdateInterval())
+                .profanityCheck(chatProperties.getProfanityCheck())
+                .internalToolExecutionEnabled(chatProperties.getInternalToolExecutionEnabled())
+                .functionCallMode(chatProperties.getFunctionCallMode())
+                .functionCallParam(chatProperties.getFunctionCallParam())
+                .httpHeaders(chatProperties.getHttpHeaders())
+                .build();
+
         final GigaChatModel gigaChatModel = GigaChatModel.builder()
                 .gigaChatApi(gigaChatApi)
-                .defaultOptions(chatProperties.getOptions())
+                .defaultOptions(options)
                 .retryTemplate(retryTemplateProvider.getIfAvailable(() -> RetryUtils.DEFAULT_RETRY_TEMPLATE))
                 .toolCallingManager(
                         toolCallingManagerProvider.getIfAvailable(() -> GigaChatModel.DEFAULT_TOOL_CALLING_MANAGER))

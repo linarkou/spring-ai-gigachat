@@ -8,9 +8,9 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import chat.giga.springai.GigaChatModel;
+import chat.giga.springai.autoconfigure.GigaChatApiAutoConfiguration;
 import chat.giga.springai.autoconfigure.GigaChatAuthTestProperties;
-import chat.giga.springai.autoconfigure.config.GigaChatApiAutoConfiguration;
-import chat.giga.springai.autoconfigure.config.GigaChatChatModelAutoConfiguration;
+import chat.giga.springai.autoconfigure.GigaChatChatModelAutoConfiguration;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -40,7 +40,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
 import org.wiremock.spring.ConfigureWireMock;
 import org.wiremock.spring.EnableWireMock;
 import org.wiremock.spring.InjectWireMock;
@@ -162,7 +161,7 @@ public abstract class GigaChatBearerAuthApiTest {
     }
 
     @Test
-    @DisplayName("Тест на ошибку при получении JSON-ответа с невалидными credentials (401)")
+    @DisplayName("JSON-ответ об ошибке (401) без access_token приводит к падению с null-токеном")
     void testGetAccessToken_JsonErrorResponse_throwsWithNullToken() {
         // Arrange
         String jsonBody = "{\"code\":6,\"message\":\"credentials doesn't match db data\"}";
@@ -172,14 +171,11 @@ public abstract class GigaChatBearerAuthApiTest {
                         .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                         .withBody(jsonBody)));
 
-        // Act & Assert — JSON has no access_token, should throw RestClientException
-        var ex = assertThrows(RestClientException.class, () -> authApi.getValue());
+        // Act & Assert — JSON has no access_token
+        var ex = assertThrows(IllegalArgumentException.class, () -> authApi.getValue());
         assertTrue(
-                ex.getMessage().contains("unparseable JSON"),
-                "Exception message should mention unparseable JSON, but was: " + ex.getMessage());
-        assertTrue(
-                ex.getMessage().contains("credentials doesn't match db data"),
-                "Exception message should contain response body, but was: " + ex.getMessage());
+                ex.getMessage().contains("access token is null"),
+                "Exception message should mention access token is null, but was: " + ex.getMessage());
     }
 
     public static Stream<Arguments> invalidTokenProvider() {

@@ -1,11 +1,14 @@
 # Гайд по миграции на Spring AI GigaChat 2.0
 
 ## Содержание
+
+- [Изменения в GigaChatOptions](#1-изменения-в-gigachatoptions)
+- [Изменения в GigaChatModel](#2-изменения-в-gigachatmodel)
+- [Изменения в конфигурации](#3-изменения-в-конфигурации)
 - [Разделение класса автоконфигурации `GigaChatAutoConfiguration` на несколько отдельных](#разделение-класса-автоконфигурации-gigachatautoconfiguration-на-несколько-отдельных)
-    - [Удаление `GigaChatAutoConfiguration`](#1-удаление-gigachatautoconfiguration)
-    - [Перенос properties-классов в подпакет `props`](#2-перенос-properties-классов-в-подпакет-props)
-    - [Новая возможность: отключение отдельных моделей](#3-новая-возможность-отключение-отдельных-моделей)
-    - [Чек-лист обновления](#чек-лист-обновления)
+  - [Удаление `GigaChatAutoConfiguration`](#1-удаление-gigachatautoconfiguration)
+  - [Новая возможность: отключение отдельных моделей](#2-новая-возможность-отключение-отдельных-моделей)
+  - [Чек-лист обновления](#чек-лист-обновления)
 
 ---
 
@@ -46,7 +49,7 @@ GigaChatOptions options = GigaChatOptions.builder()
 
 ## 3. Изменения в конфигурации
 
-Конфигурация Chat-модели была вынесена в отдельный класс `GigaChatChatProperties`.
+Параметры вызова Chat-модели были вынесены в класс `GigaChatChatProperties` без зависимости на `GigaChatOptions`.
 
 Это позволило:
 
@@ -56,7 +59,7 @@ GigaChatOptions options = GigaChatOptions.builder()
 
 ### Что нужно сделать
 
-Конфигурация через `chat.options.*` сохранена для обратной совместимости:
+Configuration properties больше не используют префикс `.options.`. Например:
 
 **Было:**
 
@@ -83,7 +86,7 @@ spring:
         max-tokens: 200
 ```
 
-
+Конфигурация через `.options.` временно сохранена для обратной совместимости.
 
 ## Разделение класса автоконфигурации `GigaChatAutoConfiguration` на несколько отдельных
 
@@ -100,18 +103,17 @@ GigaChat и других провайдеров Spring AI в одном прил
 Если вы пользуетесь библиотекой только через `application.yml` и не ссылаетесь на эти классы напрямую —
 никаких действий не требуется, обновление прозрачно.
 
-
 ### 1. Удаление `GigaChatAutoConfiguration`
 
 Единый класс `chat.giga.springai.autoconfigure.GigaChatAutoConfiguration` **удалён**.
-Вместо него теперь четыре независимых класса в пакете `chat.giga.springai.autoconfigure.config`:
+Вместо него теперь четыре независимых класса в пакете `chat.giga.springai.autoconfigure`:
 
-| Назначение                        | Новый класс автоконфигурации                                                      |
-|-----------------------------------|-----------------------------------------------------------------------------------|
-| Создание `GigaChatApi`            | `chat.giga.springai.autoconfigure.config.GigaChatApiAutoConfiguration`            |
-| Создание `GigaChatModel`          | `chat.giga.springai.autoconfigure.config.GigaChatChatModelAutoConfiguration`      |
-| Создание `GigaChatEmbeddingModel` | `chat.giga.springai.autoconfigure.config.GigaChatEmbeddingModelAutoConfiguration` |
-| Создание `GigaChatImageModel`     | `chat.giga.springai.autoconfigure.config.GigaChatImageModelAutoConfiguration`     |
+|            Назначение             |                        Новый класс автоконфигурации                        |
+|-----------------------------------|----------------------------------------------------------------------------|
+| Создание `GigaChatApi`            | `chat.giga.springai.autoconfigure.GigaChatApiAutoConfiguration`            |
+| Создание `GigaChatModel`          | `chat.giga.springai.autoconfigure.GigaChatChatModelAutoConfiguration`      |
+| Создание `GigaChatEmbeddingModel` | `chat.giga.springai.autoconfigure.GigaChatEmbeddingModelAutoConfiguration` |
+| Создание `GigaChatImageModel`     | `chat.giga.springai.autoconfigure.GigaChatImageModelAutoConfiguration`     |
 
 Все четыре класса по-прежнему регистрируются автоматически через
 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`,
@@ -148,55 +150,16 @@ class MyTest { /* ... */ }
 
 ---
 
-### 2. Перенос properties-классов в подпакет `props`
-
-Классы конфигурационных свойств были перемещены в подпакет `props`:
-
-| До                                                                         | После                                                                            |
-|----------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| `chat.giga.springai.autoconfigure.GigaChatChatProperties`                  | `chat.giga.springai.autoconfigure.props.GigaChatChatProperties`                  |
-| `chat.giga.springai.autoconfigure.GigaChatEmbeddingProperties`             | `chat.giga.springai.autoconfigure.props.GigaChatEmbeddingProperties`             |
-| `chat.giga.springai.autoconfigure.GigaChatImageProperties`                 | `chat.giga.springai.autoconfigure.props.GigaChatImageProperties`                 |
-
-> **Важно:** имена самих классов и префиксы конфигурации (`spring.ai.gigachat.chat`,
-> `spring.ai.gigachat.embedding`, `spring.ai.gigachat.image`) **не изменились**, так что
-> `application.yml` менять не нужно.
-
-#### Что нужно сделать
-
-Обновите `import`-ы в Java-коде.
-
-**Было:**
-
-```java
-import chat.giga.springai.autoconfigure.GigaChatChatProperties;
-import chat.giga.springai.autoconfigure.GigaChatEmbeddingProperties;
-import chat.giga.springai.autoconfigure.GigaChatImageProperties;
-```
-
-**Стало:**
-
-```java
-import chat.giga.springai.autoconfigure.props.GigaChatChatProperties;
-import chat.giga.springai.autoconfigure.props.GigaChatEmbeddingProperties;
-import chat.giga.springai.autoconfigure.props.GigaChatImageProperties;
-```
-
-В большинстве IDE достаточно выполнить **Optimize Imports** после обновления зависимости —
-старые импорты будут помечены как нерезолвящиеся, и IDE предложит подтянуть классы из нового пакета.
-
----
-
-### 3. Новая возможность: отключение отдельных моделей
+### 2. Новая возможность: отключение отдельных моделей
 
 После разделения авто-конфигураций каждая модель регистрируется независимо и подчиняется стандартному
 property из Spring AI:
 
-| Модель              | Property для отключения                |
-|---------------------|----------------------------------------|
-| Чат                 | `spring.ai.model.chat=none`            |
-| Эмбеддинги          | `spring.ai.model.embedding=none`       |
-| Генерация картинок  | `spring.ai.model.image=none`           |
+|       Модель       |     Property для отключения      |
+|--------------------|----------------------------------|
+| Чат                | `spring.ai.model.chat=none`      |
+| Эмбеддинги         | `spring.ai.model.embedding=none` |
+| Генерация картинок | `spring.ai.model.image=none`     |
 
 По умолчанию (`matchIfMissing = true`) все модели включены — поведение для существующих
 приложений не меняется.
@@ -218,9 +181,10 @@ spring:
 
 ---
 
-### Чек-лист обновления
+## Чек-лист обновления
 
 1. Поднимите версию зависимости до `2.x.x`.
+
    ```xml
    <dependency>
        <groupId>chat.giga</groupId>
@@ -229,9 +193,8 @@ spring:
    </dependency>
    ```
 2. Найдите по проекту использования `GigaChatAutoConfiguration` и замените на нужные классы
-   из пакета `chat.giga.springai.autoconfigure.config`.
-3. Найдите импорты `chat.giga.springai.autoconfigure.GigaChat*Properties` и поменяйте пакет
-   на `chat.giga.springai.autoconfigure.props`.
-4. (Опционально) Если используете несколько Spring AI провайдеров — настройте
+   из пакета `chat.giga.springai.autoconfigure`.
+3. (Опционально) Если используете несколько Spring AI провайдеров — настройте
    `spring.ai.model.{chat|embedding|image}` для выбора нужного.
-5. Перекомпилируйте проект и прогоните тесты. Файл `application.yml` менять не нужно.
+4. Перекомпилируйте проект и прогоните тесты. Файл `application.yml` менять не нужно.
+

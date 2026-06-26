@@ -2,15 +2,20 @@ package chat.giga.springai.autoconfigure.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import chat.giga.springai.autoconfigure.props.GigaChatImageProperties;
+import chat.giga.springai.autoconfigure.GigaChatApiAutoConfiguration;
+import chat.giga.springai.autoconfigure.GigaChatImageModelAutoConfiguration;
+import chat.giga.springai.autoconfigure.GigaChatImageProperties;
 import chat.giga.springai.image.GigaChatImageModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.ai.image.ImageModel;
 import org.springframework.ai.model.SpringAIModelProperties;
+import org.springframework.ai.retry.autoconfigure.SpringAiRetryAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.restclient.autoconfigure.RestClientAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.webclient.autoconfigure.WebClientAutoConfiguration;
 
 public class GigaChatImageModelAutoConfigurationTest {
 
@@ -19,10 +24,9 @@ public class GigaChatImageModelAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(
                     GigaChatApiAutoConfiguration.class,
                     GigaChatImageModelAutoConfiguration.class,
-                    org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration.class,
-                    org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
-                            .class,
-                    org.springframework.ai.retry.autoconfigure.SpringAiRetryAutoConfiguration.class));
+                    RestClientAutoConfiguration.class,
+                    WebClientAutoConfiguration.class,
+                    SpringAiRetryAutoConfiguration.class));
 
     @ParameterizedTest
     @CsvSource({

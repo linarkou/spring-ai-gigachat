@@ -3,7 +3,9 @@ package chat.giga.springai.autoconfigure.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import chat.giga.springai.GigaChatEmbeddingModel;
-import chat.giga.springai.autoconfigure.props.GigaChatEmbeddingProperties;
+import chat.giga.springai.autoconfigure.GigaChatApiAutoConfiguration;
+import chat.giga.springai.autoconfigure.GigaChatEmbeddingModelAutoConfiguration;
+import chat.giga.springai.autoconfigure.GigaChatEmbeddingProperties;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,9 +13,9 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.ai.model.SpringAIModelProperties;
 import org.springframework.ai.retry.autoconfigure.SpringAiRetryAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
+import org.springframework.boot.restclient.autoconfigure.RestClientAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.webclient.autoconfigure.WebClientAutoConfiguration;
 
 public class GigaChatEmbeddingModelAutoConfigurationTest {
 

@@ -1,7 +1,6 @@
-package chat.giga.springai.autoconfigure.config;
+package chat.giga.springai.autoconfigure;
 
 import chat.giga.springai.api.chat.GigaChatApi;
-import chat.giga.springai.autoconfigure.props.GigaChatImageProperties;
 import chat.giga.springai.image.GigaChatImageModel;
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.ai.image.ImageModel;
@@ -18,7 +17,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.core.retry.RetryTemplate;
 
 @AutoConfiguration(
         after = {

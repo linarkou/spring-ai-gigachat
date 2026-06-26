@@ -9,18 +9,18 @@ import chat.giga.springai.api.auth.bearer.GigaAuthToken;
 import chat.giga.springai.api.auth.bearer.NoopGigaAuthToken;
 import chat.giga.springai.api.auth.bearer.SimpleGigaAuthToken;
 import chat.giga.springai.api.chat.GigaChatApi;
+import chat.giga.springai.autoconfigure.GigaChatApiAutoConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration;
-import org.springframework.boot.autoconfigure.http.client.reactive.ClientHttpConnectorAutoConfiguration;
 import org.springframework.boot.autoconfigure.ssl.SslAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
+import org.springframework.boot.restclient.autoconfigure.RestClientAutoConfiguration;
 import org.springframework.boot.ssl.SslBundles;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
+import org.springframework.boot.webclient.autoconfigure.WebClientAutoConfiguration;
 
 public class GigaChatApiAutoConfigurationTest {
 
@@ -104,8 +104,7 @@ public class GigaChatApiAutoConfigurationTest {
                 GigaChatApiAutoConfiguration.class,
                 RestClientAutoConfiguration.class,
                 WebClientAutoConfiguration.class,
-                SslAutoConfiguration.class,
-                ClientHttpConnectorAutoConfiguration.class);
+                SslAutoConfiguration.class);
 
         new WebApplicationContextRunner()
                 .withPropertyValues("spring.ai.gigachat.auth.bearer.api-key=test")

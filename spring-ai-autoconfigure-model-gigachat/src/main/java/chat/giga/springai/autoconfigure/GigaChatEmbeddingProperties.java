@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package chat.giga.springai.autoconfigure.props;
+package chat.giga.springai.autoconfigure;
 
 import chat.giga.springai.GigaChatEmbeddingOptions;
 import chat.giga.springai.api.chat.embedding.EmbeddingsModel;
