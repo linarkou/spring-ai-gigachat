@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import chat.giga.springai.GigaChatModel;
+import chat.giga.springai.autoconfigure.GigaChatAuthTestProperties;
 import chat.giga.springai.autoconfigure.config.GigaChatApiAutoConfiguration;
 import chat.giga.springai.autoconfigure.config.GigaChatChatModelAutoConfiguration;
 import java.util.List;
@@ -27,12 +28,9 @@ public class SystemPromptSortingIT {
     ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withConfiguration(
                     AutoConfigurations.of(GigaChatApiAutoConfiguration.class, GigaChatChatModelAutoConfiguration.class))
+            .withPropertyValues(GigaChatAuthTestProperties.fromEnv())
             .withPropertyValues(
-                    "spring.ai.gigachat.auth.scope=" + System.getenv("GIGACHAT_API_SCOPE"),
-                    "spring.ai.gigachat.auth.bearer.client-id=" + System.getenv("GIGACHAT_API_CLIENT_ID"),
-                    "spring.ai.gigachat.auth.bearer.client-secret=" + System.getenv("GIGACHAT_API_CLIENT_SECRET"),
-                    "spring.ai.gigachat.auth.unsafe-ssl=true",
-                    "spring.ai.gigachat.chat.options.model=GigaChat-2-Max");
+                    "spring.ai.gigachat.auth.unsafe-ssl=true", "spring.ai.gigachat.chat.options.model=GigaChat");
 
     @Test
     @DisplayName(
@@ -71,10 +69,10 @@ public class SystemPromptSortingIT {
                             new UserMessage("Кто создал Java?"),
                             new SystemMessage("Ты эксперт по работе с  java. Отвечай на вопросы одним словом")));
 
-                    // Проверяем, что метод выбрасывает ожидаемое исключение
+                    // GigaRetryUtils.executeWithRetry сохраняет тип исключения из RetryException,
+                    // поэтому вызывающий код получает NonTransientAiException напрямую.
                     NonTransientAiException exception =
                             assertThrows(NonTransientAiException.class, () -> gigaChatModel.call(prompt));
-
                     assertThat(
                             exception.getMessage(),
                             containsStringIgnoringCase("system message must be the first message"));
