@@ -37,7 +37,9 @@ import org.springframework.ai.converter.BeanOutputConverter;
 @EnabledIfEnvironmentVariable(named = "GIGACHAT_API_CLIENT_SECRET", matches = ".+")
 @EnabledIfEnvironmentVariable(named = "GIGACHAT_API_SCOPE", matches = ".+")
 class GigaChatStructuredOutputIT {
-    private static final String PROMPT = "В заказе 3 яблока по 20 рублей. Посчитай стоимость.";
+    // Verify structured data extraction without relying on the model to calculate totals.
+    private static final String PROMPT =
+            "Извлеки данные заказа: товар (item) — яблоки, количество (quantity) — 3, итоговая стоимость (total) — 60 рублей.";
 
     public record Order(String item, int quantity, int total) {}
 

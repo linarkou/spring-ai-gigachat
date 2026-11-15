@@ -223,7 +223,11 @@ public class GigaChatOptions implements ToolCallingChatOptions, StructuredOutput
             return self();
         }
 
-        /** Sets a native JSON schema with strict mode enabled, or clears the format when null. */
+        /**
+         * Sets a native JSON schema with strict mode enabled, or clears the format when null.
+         * Use an object with named, required properties; root lists and maps are not supported
+         * by native structured output. See {@link ResponseFormat} for schema limitations.
+         */
         @Override
         public B outputSchema(@Nullable String outputSchema) {
             return responseFormat(

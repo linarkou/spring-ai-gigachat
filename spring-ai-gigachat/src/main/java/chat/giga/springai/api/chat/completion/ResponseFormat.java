@@ -27,6 +27,9 @@ import org.springframework.util.Assert;
 /**
  * Native response format for {@code /v1/chat/completions}. The schema is a JSON object,
  * serialized directly into {@code response_format.schema}, without an additional wrapper.
+ * Native structured output does not support a root array ({@code List}) or an open-ended
+ * root object ({@code Map}). Use an object with named, required properties and wrap lists
+ * in such an object. Schemas are passed to the provider without local validation.
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)

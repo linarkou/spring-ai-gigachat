@@ -53,6 +53,9 @@ curl "localhost:8080/actor-films" -d "Назови 5 популярных фил
 [StructuredEntityController](src/main/java/chat/giga/springai/example/StructuredEntityController.java)
 использует `.entity(ActorFilms.class, spec -> spec.useProviderStructuredOutput())`.
 Spring AI строит JSON Schema из `ActorFilms` и передаёт её в `response_format` GigaChat API.
+Корневые `List` и `Map` в нативном режиме не поддерживаются; используйте объект
+с именованными обязательными полями, как `ActorFilms` с полем `movies`.
+Подробнее — в [ограничениях структурированного вывода](../docs/structured-output.md#ограничения).
 
 ```shell
 curl "localhost:8080/native-structured-output" -d "Назови 5 популярных фильмов с Сергеем Безруковым" -H "content-type:application/json"

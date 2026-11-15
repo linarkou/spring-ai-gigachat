@@ -11,7 +11,7 @@ public record Order(String item, int quantity, int total) {}
 
 Order order = ChatClient.create(gigaChatModel)
         .prompt()
-        .user("В заказе 3 яблока по 20 рублей. Посчитай стоимость.")
+        .user("Извлеки данные заказа: товар — яблоки, количество — 3, итоговая стоимость — 60 рублей.")
         .call()
         .entity(Order.class, spec -> spec.useProviderStructuredOutput());
 ```
@@ -24,6 +24,35 @@ Spring AI строит схему из `Order` и передаёт её чере
 и без соответствующего advisor-параметра `.entity(Order.class)` добавляет инструкции
 о формате в промпт, как и в стандартном Spring AI.
 
+## Ограничения
+
+Нативный режим не поддерживает схемы с `List` или `Map` в корне:
+
+- Для `List<Order>` (корневой `type=array`) модель может вернуть `[]` без ошибки.
+- Для `Map<String, Object>` (корневой `type=object` без фиксированных обязательных
+  полей) модель может вернуть `{}` или произвольные ключи.
+
+Используйте POJO или record с именованными обязательными полями. Для списка
+добавьте объект-обёртку:
+
+```java
+public record Orders(List<Order> orders) {}
+
+Orders result = chatClient.prompt()
+        .user("Извлеки заказы: 3 яблока общей стоимостью 60 рублей и 2 груши общей стоимостью 80 рублей.")
+        .call()
+        .entity(Orders.class, spec -> spec.useProviderStructuredOutput());
+```
+
+Список в поле объекта, как `orders` в этом примере, не является корневым массивом.
+Библиотека передаёт схему провайдеру без локальной проверки этих ограничений;
+они также относятся к явной схеме, настройкам по умолчанию и стримингу.
+
+Соответствие JSON Schema не гарантирует правильность значений, например расчёта
+стоимости. `validateSchema()` проверяет структуру и ограничения схемы, но не
+арифметику или смысл ответа. В примерах и интеграционном тесте итоговая стоимость
+задана явно, чтобы проверять извлечение данных, а не вычисления модели.
+
 ## Включение через AdvisorParams
 
 Для одного запроса можно использовать тот же параметр, что и в
@@ -34,7 +63,7 @@ import org.springframework.ai.chat.client.AdvisorParams;
 
 Order order = chatClient.prompt()
         .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
-        .user("В заказе 3 яблока по 20 рублей. Посчитай стоимость.")
+        .user("Извлеки данные заказа: товар — яблоки, количество — 3, итоговая стоимость — 60 рублей.")
         .call()
         .entity(Order.class);
 ```
@@ -60,7 +89,7 @@ ChatClient chatClient(ChatClient.Builder builder) {
 
 ```java
 Order order = chatClient.prompt()
-        .user("В заказе 3 яблока по 20 рублей. Посчитай стоимость.")
+        .user("Извлеки данные заказа: товар — яблоки, количество — 3, итоговая стоимость — 60 рублей.")
         .call()
         .entity(Order.class, spec -> spec
                 .useProviderStructuredOutput()
@@ -90,7 +119,7 @@ String schema = """
 
 String json = ChatClient.create(gigaChatModel)
         .prompt()
-        .user("В заказе 3 яблока по 20 рублей. Посчитай стоимость.")
+        .user("Извлеки данные заказа: товар — яблоки, количество — 3, итоговая стоимость — 60 рублей.")
         .options(GigaChatOptions.builder().outputSchema(schema))
         .call()
         .content();
@@ -174,7 +203,7 @@ spring:
 ```java
 String json = ChatClient.create(gigaChatModel)
         .prompt()
-        .user("В заказе 3 яблока по 20 рублей. Посчитай стоимость.")
+        .user("Извлеки данные заказа: товар — яблоки, количество — 3, итоговая стоимость — 60 рублей.")
         .options(GigaChatOptions.builder().outputSchema(schema))
         .stream()
         .content()
